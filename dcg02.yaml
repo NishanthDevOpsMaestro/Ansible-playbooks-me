@@ -1,0 +1,34 @@
+---
+- name: maintenance nodes audit
+  hosts: dcg02
+  gather_facts: no
+  tasks:
+    - name: Check Node Name
+      shell: dcg02
+      register: dcg02_output
+
+    - name: Check Node IP
+      shell: hostname -I
+      register: node_ip_output
+
+    - name: Check Ping Status
+      ping:
+      register: ping_output
+
+    - name: Check SSH Status
+      wait_for:
+        host: "{{ ansible_host }}"
+        port: 22
+        timeout: 5
+      register: ssh_status_output
+
+    # You can add more tasks here to collect additional information
+
+- name: Display Gathered Information
+  debug:
+    var: "{{ item }}"
+  loop:
+    - node_name_output
+    - node_ip_output
+    - ping_output
+    - ssh_status_output
