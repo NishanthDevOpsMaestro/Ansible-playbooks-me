@@ -20,3 +20,13 @@ ansible prod -m fetch -a "src=/etc/hosts dest=/root"
 ansible prod -m file -a "dest=/tmp/test mode=644 state=directory"
 ansible prod -m file -a "dest=/tmp/test state=absent"
 ansible prod  -m shell -a "tail /var/log/messages | grep ansible-command | wc -l 
+
+
+Hosts Selection Commands
+ansible --list-host all 
+ansible --list-host "*"
+ansible --list-host webserver:dbserver
+ansible --list-host webserver[0]:dbserver
+ansible --list-host webserver[1:]
+ansible --list-host webserver[-1]
+Ansible --list-host \!webserver 
