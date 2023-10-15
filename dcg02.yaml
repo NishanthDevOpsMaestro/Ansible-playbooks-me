@@ -1,14 +1,17 @@
 ---
 - name: maintenance nodes audit
-  hosts: dcg02
+  hosts: all
   gather_facts: no
+  serial: "{{ serial_number|default(100) }}"
+  ignore_errors: true
+
   tasks:
     - name: Check Node Name
-      shell: dcg02
+      shell: all
       register: dcg02_output
 
     - name: Check Node IP
-      shell: hostname -I
+      shell: curl --max-time 2 -sk "http://$(hostname -f):8500/v1/health/node/$(hostname -s)" | jq -r '.[] | "\(.CheckID):\(.Status)"' |grep -v pass
       register: node_ip_output
 
     - name: Check Ping Status
@@ -22,7 +25,7 @@
         timeout: 5
       register: ssh_status_output
 
-    # You can add more tasks here to collect additional information
+    # Display Gathered Information
 
 - name: Display Gathered Information
   debug:

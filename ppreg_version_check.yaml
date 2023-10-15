@@ -1,0 +1,14 @@
+- name: Check Ppreg version
+  hosts: all
+  gather_facts: no
+  serial: "{{ serial_number|default(100) }}"
+  ignore_errors: true
+
+  tasks:
+    - name: check Ppreg verison
+      shell: "dpkg -l | grep ppregistrator | awk '{print $3}'"
+      register: version
+
+    - debug:
+        msg: "{{ inventory_hostname }} | {{ version.stdout }}"
+      when: version.stdout != "0.20.17"

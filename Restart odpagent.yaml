@@ -1,0 +1,33 @@
+---
+- name: Restart odpagent if running
+  hosts: all
+  become: yes
+  serial: "{{ serial_number|default(50) }}"
+  gather_facts: no
+tasks:
+    - name: Status of odpagent
+      shell: systemctl status odpagent.service --quiet | grep Active || true
+      register: odpagentStatus
+- name: odpagent running
+      debug:
+        msg: "odpagent running on {{ inventory_hostname }}.  Will restart."
+      when:
+        - odpagentStatus is defined
+        - odpagentStatus.stdout is search('running')
+- name: odpagent NOT running
+      debug:
+        msg: "odpagent not runnong on {{ inventory_hostname }}.  Will not restart."
+      when:
+        - odpagentStatus is defined
+        - odpagentStatus.stdout is search('inactive')
+- name: Restart odpagent
+      shell: systemctl restart odpagent --quiet > /dev/null 2>&1 &&  echo odpagent restarted || echo problem restating odpagent
+      register: odpagentRestartStatus
+      when:
+        - odpagentStatus is defined
+        - odpagentStatus.stdout is search('running')
+- name: Restart odpagent status
+      debug:
+        msg: "{{ inventory_hostname }} - {{ odpagentRestartStatus.stdout }}"
+      when:
+        - odpagentRestartStatus is defined

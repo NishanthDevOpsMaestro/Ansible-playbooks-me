@@ -1,0 +1,13 @@
+---
+- name: Check log4j version
+  hosts: all
+  gather_facts: no
+  serial: "{{ serial_number|default(100) }}"
+  ignore_errors: true
+tasks:
+    - name: check log4j version
+      shell: "dpkg -l | grep liblog4j1.2-java | awk '{print $3}'"
+      register: version
+- debug:
+        msg: "{{ inventory_hostname }} | {{ version.stdout }}"
+      when: version.stdout != "1.2.17-7ubuntu1"

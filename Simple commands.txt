@@ -1,0 +1,6 @@
+---capture all the nodes in a file
+from any one of the prod node, run
+for i in `cat <file>`
+do
+ping -c 3 $i
+done---

@@ -1,0 +1,21 @@
+---
+- name: Gather watchers nodes
+  hosts: all
+  become: yes
+  gather_facts: no
+  serial: "{{ serial_number|default(500) }}"
+  ignore_errors: true
+
+  tasks:
+    - name: Get max_user_watches value
+      shell: cat /proc/sys/fs/inotify/max_user_watches
+      register: max_user_watches_output
+
+    - name: Check max_user_watches value
+      debug:
+        msg: "Max user watches on {{ ansible_hostname }} is {{ max_user_watches_output.stdout }}"
+
+    - name: Print message if max_user_watches is too low
+      debug:
+        msg: "Max user watches on {{ ansible_hostname }} is less than 32768."
+      when: max_user_watches_output.stdout|int < 32768

@@ -1,0 +1,28 @@
+---
+- name: Check container restart time
+  hosts: all
+  become: yes
+  serial: "{{ serial_number|default(50) }}"
+  gather_facts: false
+  tasks:
+    - name: Get current time
+      set_fact:
+         current: "{{ lookup('pipe','date +%s') }}"
+- name: Get creation time of container
+      shell: "docker inspect keymakeragent | jq -r '.[0].Created'"
+      register: container_created_time
+      changed_when: False
+- name: Set the variable timestamp_in_seconds
+      shell: "date -d {{ container_created_time.stdout  }} +%s"
+      register: created_time
+- name: Calculate time difference
+      set_fact:
+        time_difference: "{{ (current|int) - (created_time.stdout|int) }}"
+- name: Check if container was restarted within the last month
+      debug:
+        msg: "{{ inventory_hostname }} | Keymaker restarted on | {{ container_created_time.stdout }}"
+      when: time_difference|int  < 4320000
+- name: Report container restart time
+      debug:
+        msg: "ERROR: {{ inventory_hostname }} | Keymaker restarted on | {{ container_created_time.stdout }}"
+      when: time_difference|int  > 4320000
