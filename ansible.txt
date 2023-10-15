@@ -30,3 +30,4 @@ ansible --list-host webserver[0]:dbserver
 ansible --list-host webserver[1:]
 ansible --list-host webserver[-1]
 Ansible --list-host \!webserver 
+------
